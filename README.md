@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rerack
 
-## Getting Started
+A weekly action list for clothing chains: upload each store's stock CSV and get a short, ranked list of what to **move** between stores or **mark down**, with a one-line reason for each. The owner approves or rejects every action; nothing is applied automatically.
 
-First, run the development server:
+**Code does every number. The AI only ranks and explains.** Days since receipt, sales rate, weeks of stock left and sell-through are plain arithmetic in `lib/metrics.ts`, and the move/markdown rules live in `lib/candidates.ts` and `lib/config.ts`. One AI call (`lib/rank.ts`) ranks those candidates, writes a reason for each, and reads the owner's free-text note (for example "Diwali in 3 weeks" or "Store B closed"). Code then checks the AI's answer, and if the AI is unavailable the rule-based list is shown with a banner.
+
+## Run it
+
+```bash
+npm install
+```
+
+Create `.env.local` in the project root with your OpenRouter key (never commit this file):
+
+```
+OPENROUTER_API_KEY=sk-or-v1-...
+```
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000, choose the five files in `sample-data/` (`store-a.csv` ... `store-e.csv`), add a note, and press **Analyze**. The `bad-*` files in the same folder show how bad input is handled.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## CSV template
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`item, size, colour, date_received, units_on_hand, units_sold_4w` (one file per store; the file name is the store name).
 
-## Learn More
+## Not built yet (MVP scope)
 
-To learn more about Next.js, take a look at the following resources:
+Automatic nightly pull from billing software, AI matching of inconsistent item names, transfer notes to store managers, a price-change export, and results tracking. The approvals log is kept in the browser only.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Push to GitHub, import the repo on Vercel, and add `OPENROUTER_API_KEY` under Project Settings, Environment Variables.

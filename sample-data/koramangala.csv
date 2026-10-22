@@ -1,0 +1,61 @@
+item,size,colour,date_received,units_on_hand,units_sold
+Kurta,S,Navy,2026-10-08,2,2
+Kurta,S,Maroon,2026-09-26,1,13
+Kurta,S,Mustard,2026-10-10,2,2
+Kurta,S,Teal,2026-09-10,1,1
+Kurta,M,Navy,2026-09-24,9,5
+Kurta,M,Mustard,2026-09-14,3,2
+Kurta,M,Teal,2026-10-05,1,2
+Kurta,L,Navy,2026-09-27,4,4
+Kurta,L,Mustard,2026-09-14,5,2
+Kurta,XL,Navy,2026-07-31,8,0
+Kurta,XL,Maroon,2026-09-09,1,1
+Kurta,XL,Mustard,2026-10-08,4,1
+Shirt,S,Sky Blue,2026-09-23,2,3
+Shirt,S,Olive,2026-10-06,4,4
+Shirt,M,White,2026-09-22,9,5
+Shirt,M,Sky Blue,2026-09-23,7,5
+Shirt,M,Olive,2026-09-05,9,6
+Shirt,L,White,2026-09-11,4,5
+Shirt,L,Sky Blue,2026-09-17,4,4
+Shirt,L,Olive,2026-07-16,4,1
+Shirt,XL,White,2026-08-19,9,1
+Shirt,XL,Sky Blue,2026-08-29,1,2
+Shirt,XL,Olive,2026-10-09,1,2
+Jeans,30,Indigo,2026-09-22,4,4
+Jeans,32,Black,2026-09-10,11,10
+Jeans,32,Grey,2026-10-05,6,5
+Jeans,34,Indigo,2026-10-07,11,6
+Jeans,34,Black,2026-09-02,8,8
+Jeans,34,Grey,2026-09-19,11,5
+Jeans,36,Indigo,2026-10-10,5,5
+Jeans,36,Black,2026-09-19,6,4
+Jeans,36,Grey,2026-07-27,5,0
+Trousers,30,Khaki,2026-10-11,4,2
+Trousers,30,Charcoal,2026-09-30,2,3
+Trousers,32,Charcoal,2026-09-27,3,14
+Trousers,34,Khaki,2026-08-22,6,1
+Trousers,34,Charcoal,2026-10-11,6,4
+Trousers,36,Khaki,2026-10-02,2,3
+Trousers,36,Charcoal,2026-09-07,3,2
+Dress,S,Floral Pink,2026-09-24,4,14
+Dress,S,Black,2026-08-30,3,4
+Dress,S,Emerald,2026-09-18,4,3
+Dress,M,Floral Pink,2026-08-09,4,1
+Dress,M,Black,2026-08-13,8,2
+Dress,M,Emerald,2026-10-05,3,4
+Dress,L,Black,2026-08-29,2,5
+Dress,L,Emerald,2026-10-15,5,3
+Sneakers,UK 7,White,2026-08-18,9,1
+Sneakers,UK 7,Black,2026-09-04,6,4
+Sneakers,UK 8,White,2026-09-02,8,9
+Sneakers,UK 8,Black,2026-10-05,11,5
+Sneakers,UK 10,Black,2026-10-09,7,5
+Casual Shoes,UK 7,Tan,2026-10-17,4,3
+Casual Shoes,UK 7,Brown,2026-09-07,5,3
+Casual Shoes,UK 8,Brown,2026-08-08,8,1
+Casual Shoes,UK 9,Tan,2026-09-25,9,6
+Casual Shoes,UK 9,Brown,2026-10-12,7,8
+Casual Shoes,UK 10,Tan,2026-09-12,5,3
+Casual Shoes,UK 10,Brown,2026-09-02,3,3
+Jeans,32,Indigo,2026-08-13,10,16

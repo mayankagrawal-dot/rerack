@@ -1,0 +1,65 @@
+item,size,colour,date_received,units_on_hand,units_sold
+Kurta,S,Navy,2026-10-14,3,3
+Kurta,S,Maroon,2026-08-12,10,0
+Kurta,S,Mustard,2026-10-18,2,2
+Kurta,S,Teal,2026-09-12,4,2
+Kurta,M,Navy,2026-09-24,9,5
+Kurta,M,Maroon,2026-10-06,6,5
+Kurta,M,Teal,2026-10-04,3,2
+Kurta,L,Navy,2026-09-27,3,4
+Kurta,L,Maroon,2026-09-16,3,4
+Kurta,L,Mustard,2026-09-10,5,3
+Kurta,L,Teal,2026-09-20,3,13
+Kurta,XL,Navy,2026-07-23,4,0
+Kurta,XL,Maroon,2026-09-03,2,3
+Kurta,XL,Mustard,2026-10-02,2,2
+Kurta,XL,Teal,2026-09-14,2,1
+Shirt,S,White,2026-09-09,7,5
+Shirt,S,Sky Blue,2026-09-16,4,5
+Shirt,S,Olive,2026-10-16,3,4
+Shirt,M,White,2026-09-21,12,7
+Shirt,M,Sky Blue,2026-09-26,5,6
+Shirt,M,Olive,2026-09-08,5,5
+Shirt,L,White,2026-09-11,4,5
+Shirt,L,Olive,2026-08-07,6,1
+Shirt,XL,White,2026-08-10,8,1
+Shirt,XL,Sky Blue,2026-08-27,5,4
+Shirt,XL,Olive,2026-10-04,3,3
+Jeans,30,Black,2026-09-11,1,12
+Jeans,30,Grey,2026-09-10,2,3
+Jeans,32,Indigo,2026-09-07,6,5
+Jeans,32,Black,2026-09-16,7,5
+Jeans,34,Indigo,2026-10-03,7,6
+Jeans,34,Black,2026-09-07,3,4
+Jeans,34,Grey,2026-09-18,6,5
+Jeans,36,Indigo,2026-10-10,4,4
+Jeans,36,Grey,2026-07-19,3,0
+Trousers,30,Khaki,2026-10-11,2,3
+Trousers,30,Charcoal,2026-10-01,2,2
+Trousers,32,Khaki,2026-09-25,1,14
+Trousers,32,Charcoal,2026-09-28,4,6
+Trousers,34,Khaki,2026-10-06,8,7
+Trousers,34,Charcoal,2026-10-18,7,6
+Trousers,36,Khaki,2026-09-30,6,3
+Trousers,36,Charcoal,2026-09-09,4,2
+Dress,S,Floral Pink,2026-09-13,3,6
+Dress,S,Black,2026-08-29,6,5
+Dress,S,Emerald,2026-09-19,4,3
+Dress,M,Floral Pink,2026-07-24,8,2
+Dress,M,Black,2026-07-27,5,1
+Dress,L,Floral Pink,2026-08-14,10,0
+Dress,L,Black,2026-09-01,10,0
+Dress,L,Emerald,2026-10-18,3,3
+Sneakers,UK 7,White,2026-07-22,5,0
+Sneakers,UK 7,Black,2026-09-03,3,2
+Sneakers,UK 8,White,2026-08-30,9,5
+Sneakers,UK 8,Black,2026-10-05,4,7
+Sneakers,UK 9,White,2026-08-29,7,6
+Sneakers,UK 9,Black,2026-09-09,5,5
+Sneakers,UK 10,Black,2026-10-18,5,5
+Casual Shoes,UK 7,Tan,2026-10-13,2,3
+Casual Shoes,UK 8,Tan,2026-09-04,3,5
+Casual Shoes,UK 8,Brown,2026-07-26,9,0
+Casual Shoes,UK 9,Brown,2026-10-04,3,6
+Casual Shoes,UK 10,Tan,2026-09-07,4,3
+Casual Shoes,UK 10,Brown,2026-09-04,6,3

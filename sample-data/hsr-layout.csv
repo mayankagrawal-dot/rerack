@@ -1,0 +1,61 @@
+item,size,colour,date_received,units_on_hand,units_sold
+Kurta,S,Navy,2026-10-16,5,3
+Kurta,S,Mustard,2026-10-07,2,2
+Kurta,S,Teal,2026-09-11,1,2
+Kurta,M,Navy,2026-09-24,9,5
+Kurta,M,Maroon,2026-10-04,5,6
+Kurta,M,Mustard,2026-09-11,6,5
+Kurta,M,Teal,2026-10-10,4,3
+Kurta,L,Navy,2026-10-03,5,4
+Kurta,L,Maroon,2026-09-18,5,4
+Kurta,L,Mustard,2026-09-11,4,4
+Kurta,L,Teal,2026-08-15,11,0
+Kurta,XL,Maroon,2026-09-05,2,2
+Kurta,XL,Mustard,2026-10-10,3,3
+Kurta,XL,Teal,2026-09-17,2,2
+Shirt,S,White,2026-09-27,2,15
+Shirt,S,Sky Blue,2026-09-19,2,4
+Shirt,S,Olive,2026-10-15,2,3
+Shirt,M,Sky Blue,2026-09-27,5,6
+Shirt,M,Olive,2026-09-13,7,4
+Shirt,L,White,2026-09-13,8,7
+Shirt,L,Sky Blue,2026-09-23,6,5
+Shirt,L,Olive,2026-07-28,4,1
+Shirt,XL,White,2026-08-02,6,2
+Shirt,XL,Sky Blue,2026-08-27,7,0
+Shirt,XL,Olive,2026-10-04,1,3
+Jeans,30,Indigo,2026-09-24,3,4
+Jeans,30,Black,2026-09-13,4,3
+Jeans,30,Grey,2026-09-10,3,3
+Jeans,32,Grey,2026-10-07,3,4
+Jeans,34,Indigo,2026-10-02,6,5
+Jeans,34,Black,2026-09-05,5,5
+Jeans,34,Grey,2026-09-17,7,5
+Jeans,36,Black,2026-09-14,4,4
+Jeans,36,Grey,2026-08-06,9,0
+Trousers,30,Khaki,2026-10-14,3,3
+Trousers,32,Charcoal,2026-08-30,7,1
+Trousers,34,Khaki,2026-10-08,7,5
+Trousers,34,Charcoal,2026-10-16,6,6
+Dress,S,Floral Pink,2026-08-11,12,0
+Dress,S,Black,2026-09-04,7,4
+Dress,S,Emerald,2026-09-23,4,5
+Dress,M,Floral Pink,2026-08-12,7,2
+Dress,M,Black,2026-07-25,5,2
+Dress,M,Emerald,2026-10-06,4,4
+Dress,L,Floral Pink,2026-10-07,5,7
+Dress,L,Black,2026-09-01,4,6
+Dress,L,Emerald,2026-10-13,3,5
+Sneakers,UK 7,White,2026-08-16,6,1
+Sneakers,UK 7,Black,2026-09-08,4,3
+Sneakers,UK 8,White,2026-09-01,7,7
+Sneakers,UK 9,White,2026-08-29,7,9
+Sneakers,UK 10,White,2026-08-28,6,0
+Casual Shoes,UK 7,Tan,2026-10-13,4,2
+Casual Shoes,UK 7,Brown,2026-09-04,2,2
+Casual Shoes,UK 8,Tan,2026-08-11,7,0
+Casual Shoes,UK 8,Brown,2026-08-04,3,2
+Casual Shoes,UK 9,Tan,2026-09-17,6,4
+Casual Shoes,UK 9,Brown,2026-10-10,2,3
+Casual Shoes,UK 10,Tan,2026-09-12,4,3
+Casual Shoes,UK 10,Brown,2026-09-05,4,2

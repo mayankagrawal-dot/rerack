@@ -1,12 +1,12 @@
 import Papa from "papaparse";
-import { CONFIG, REQUIRED_COLUMNS } from "./config";
-import type { FileError, StockRow } from "./types";
+import { CONFIG, REQUIRED_COLUMNS, SOLD_COLUMN, SOLD_COLUMN_ALIASES } from "./config";
+import type { FileError, FileReport, StockRow } from "./types";
 
-export type RawFile = { name: string; size: number; text: string };
+export type RawFile = { name: string; size: number; text: string; store?: string };
 
 const MAX_MESSAGES_PER_FILE = 5;
 
-// "store-a.csv" -> "Store A"
+// "indiranagar.csv" -> "Indiranagar", "store-a.csv" -> "Store A"
 export function storeNameFromFile(fileName: string): string {
   const base = fileName.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
   return base
@@ -40,10 +40,23 @@ function parseCount(value: string | undefined): number | null {
   return /^\d+$/.test(v) ? Number(v) : null;
 }
 
-export function validateFiles(files: RawFile[], today = new Date()): { errors: FileError[]; rows: StockRow[] } {
+export type ValidationResult = {
+  errors: FileError[]; // anything that blocks processing
+  warnings: FileError[]; // worth knowing, but not blocking
+  rows: StockRow[]; // empty when there are errors
+  reports: FileReport[]; // one per file, for the import screen
+};
+
+export function validateFiles(files: RawFile[], todayOverride?: Date): ValidationResult {
+  // Read the clock only when there is a file to check. (Next.js doesn't allow reading it while pre-rendering.)
+  let clock: Date | undefined = todayOverride;
+  const today = () => (clock ??= new Date());
   const errors: FileError[] = [];
+  const warnings: FileError[] = [];
+  const reports: FileReport[] = [];
   const rows: StockRow[] = [];
   const seenStores = new Map<string, string>();
+  const seenContent = new Map<string, string>();
 
   if (files.length < 2) {
     errors.push({
@@ -53,43 +66,52 @@ export function validateFiles(files: RawFile[], today = new Date()): { errors: F
   }
   if (files.length > CONFIG.maxFiles) {
     errors.push({ file: "", message: `Too many files. Upload ${CONFIG.maxFiles} stores or fewer.` });
-    return { errors, rows };
+    return { errors, warnings, rows, reports };
   }
 
   for (const file of files) {
+    const store = file.store?.trim() || storeNameFromFile(file.name);
     const fileErrors: string[] = [];
+    const fileWarnings: string[] = [];
+    let preview: Record<string, string>[] = [];
+    let rowCount = 0;
     const fail = (message: string) => fileErrors.push(message);
-    const done = () => {
+    const finish = () => {
       const shown = fileErrors.slice(0, MAX_MESSAGES_PER_FILE);
-      for (const message of shown) errors.push({ file: file.name, message });
-      if (fileErrors.length > shown.length) {
-        errors.push({ file: file.name, message: `...and ${fileErrors.length - shown.length} more problems.` });
-      }
+      const shownErrors = [...shown];
+      if (fileErrors.length > shown.length) shownErrors.push(`...and ${fileErrors.length - shown.length} more problems.`);
+      for (const message of shownErrors) errors.push({ file: file.name, message });
+      for (const message of fileWarnings) warnings.push({ file: file.name, message });
+      reports.push({ file: file.name, store, rows: rowCount, errors: shownErrors, warnings: fileWarnings, preview });
     };
 
     if (!/\.csv$/i.test(file.name)) {
       fail(`${file.name} isn't a CSV file.`);
-      done();
+      finish();
       continue;
     }
     if (file.size > CONFIG.maxFileBytes) {
       fail(`${file.name} is too large (over 1 MB). Export one store's report only.`);
-      done();
+      finish();
       continue;
     }
     const text = file.text.replace(/^﻿/, "");
     if (text.trim() === "") {
       fail(`${file.name} is empty.`);
-      done();
+      finish();
       continue;
     }
 
-    const store = storeNameFromFile(file.name);
     const clash = seenStores.get(store.toLowerCase());
     if (clash) {
-      fail(`${file.name} has the same store name as ${clash}. Rename one of the files.`);
+      fail(`${file.name} has the same store name as ${clash}. Give each file its own store name.`);
     }
     seenStores.set(store.toLowerCase(), file.name);
+
+    const content = text.replace(/\s+/g, "");
+    const sameContent = seenContent.get(content);
+    if (sameContent) fileWarnings.push(`This file has exactly the same contents as ${sameContent}. Is it a duplicate upload?`);
+    else seenContent.set(content, file.name);
 
     const parsed = Papa.parse<Record<string, string>>(text, {
       header: true,
@@ -99,24 +121,31 @@ export function validateFiles(files: RawFile[], today = new Date()): { errors: F
 
     if (parsed.errors.some((e) => e.type === "Quotes")) {
       fail(`We couldn't read ${file.name}. Re-export it as CSV.`);
-      done();
+      finish();
       continue;
     }
 
     const columns = parsed.meta.fields ?? [];
-    const missing = REQUIRED_COLUMNS.filter((c) => !columns.includes(c));
-    if (missing.length > 0) {
+    const missing: string[] = REQUIRED_COLUMNS.filter((c) => !columns.includes(c));
+    const soldCol = SOLD_COLUMN_ALIASES.find((a) => columns.includes(a));
+    if (missing.length > 0 || !soldCol) {
       for (const c of missing) fail(`${file.name} is missing the '${c}' column.`);
-      done();
+      if (!soldCol) fail(`${file.name} is missing the '${SOLD_COLUMN}' column (the older name 'units_sold_4w' also works).`);
+      finish();
       continue;
     }
+    const soldKey = soldCol as string;
+    rowCount = parsed.data.length;
+    preview = parsed.data.slice(0, 5);
     if (parsed.data.length === 0) {
       fail(`${file.name} has column names but no stock rows.`);
-      done();
+      finish();
       continue;
     }
 
     const fileRows: StockRow[] = [];
+    const seenStyles = new Set<string>();
+    let duplicateStyles = 0;
     parsed.data.forEach((raw, i) => {
       const line = i + 2; // line 1 is the header
       const item = (raw.item ?? "").trim();
@@ -131,28 +160,39 @@ export function validateFiles(files: RawFile[], today = new Date()): { errors: F
         return fail(
           `${file.name} row ${line}: units_on_hand '${(raw.units_on_hand ?? "").trim()}' isn't a whole number (0 or more).`
         );
-      const sold4w = parseCount(raw.units_sold_4w);
-      if (sold4w === null)
+      const sold = parseCount(raw[soldKey]);
+      if (sold === null)
         return fail(
-          `${file.name} row ${line}: units_sold_4w '${(raw.units_sold_4w ?? "").trim()}' isn't a whole number (0 or more).`
+          `${file.name} row ${line}: ${soldKey} '${(raw[soldKey] ?? "").trim()}' isn't a whole number (0 or more).`
         );
 
-      const daysOld = daysSince(raw.date_received ?? "", today);
+      const daysOld = daysSince(raw.date_received ?? "", today());
       if (daysOld === null)
         return fail(
           `${file.name} row ${line}: date_received '${(raw.date_received ?? "").trim()}' isn't a date (use 2026-08-20 or 20/08/2026).`
         );
       if (daysOld < 0) return fail(`${file.name} row ${line}: date_received is in the future.`);
 
-      fileRows.push({ store, item, size, colour, daysOld, onHand, sold4w });
+      const key = `${item}|${size}|${colour}`.toLowerCase();
+      if (seenStyles.has(key)) duplicateStyles++;
+      seenStyles.add(key);
+      fileRows.push({ store, item, size, colour, daysOld, onHand, sold });
     });
 
-    if (fileErrors.length > 0) {
-      done();
-      continue;
+    if (fileErrors.length === 0) {
+      if (duplicateStyles > 0)
+        fileWarnings.push(
+          `${duplicateStyles} row${duplicateStyles > 1 ? "s repeat" : " repeats"} an item, size and colour already listed. Their units will be added together.`
+        );
+      if (fileRows.every((r) => r.sold === 0))
+        fileWarnings.push(`No sales are recorded in this file. Check that ${soldKey} was exported correctly.`);
+      if (fileRows.every((r) => r.onHand === 0))
+        fileWarnings.push("No stock is recorded in this file. Check that units_on_hand was exported correctly.");
     }
-    rows.push(...fileRows);
+
+    finish();
+    if (fileErrors.length === 0) rows.push(...fileRows);
   }
 
-  return { errors, rows: errors.length > 0 ? [] : rows };
+  return { errors, warnings, rows: errors.length > 0 ? [] : rows, reports };
 }

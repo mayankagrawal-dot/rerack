@@ -22,6 +22,15 @@
   --color-risk-soft: #fde8e4;
   --color-info: #2b5fb0;
   --color-info-soft: #e6eefb;
+
+  /* The dark navigation rail and the light teal used on dark surfaces. */
+  --color-rail: #0f1a33;
+  --color-rail-soft: #1b2949;
+  --color-rail-line: #26355a;
+  --color-mint: #5fd3b3;
+
+  --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 14px -6px rgba(16, 24, 40, 0.08);
+  --shadow-lift: 0 2px 4px rgba(16, 24, 40, 0.05), 0 14px 32px -12px rgba(16, 24, 40, 0.18);
 }
 
 html {
@@ -29,7 +38,11 @@ html {
 }
 
 body {
-  background: var(--color-paper);
+  /* A faint teal glow at the top keeps the page from feeling flat. */
+  background:
+    radial-gradient(1100px 420px at 75% -160px, rgba(11, 122, 99, 0.07), transparent 70%),
+    var(--color-paper);
+  background-attachment: fixed;
   color: var(--color-ink);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -55,6 +68,21 @@ dialog::backdrop {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   fill: var(--color-ink-soft);
   font-size: 12px;
+}
+
+/* Pages fade up gently when they open. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise-in {
+  animation: rise-in 0.35s ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {

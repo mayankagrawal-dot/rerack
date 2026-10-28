@@ -171,10 +171,19 @@ export default function ActionCard({ candidate: c, index, reason, reasonKind, nu
   }
 
   return (
-    <article id={c.id} className={cx("scroll-mt-24 rounded-xl border bg-card p-5 shadow-[0_1px_2px_rgba(18,26,43,0.04)]", decision?.status === "rejected" ? "border-line opacity-80" : "border-line")}>
+    <article
+      id={c.id}
+      className={cx(
+        // The coloured edge says the type at a glance: blue for transfers, amber for markdowns. The badge says it in words.
+        "relative scroll-mt-24 overflow-hidden rounded-2xl border border-line/80 bg-card p-5 pl-6 shadow-card transition-shadow hover:shadow-lift sm:p-6 sm:pl-7",
+        "before:absolute before:inset-y-0 before:left-0 before:w-1.5",
+        c.type === "move" ? "before:bg-info" : "before:bg-amber",
+        decision?.status === "rejected" && "opacity-80"
+      )}
+    >
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
         {index !== null && (
-          <span className="flex size-7 items-center justify-center rounded-full bg-navy text-[13px] font-semibold text-white" aria-label={`Rank ${index + 1}`}>
+          <span className="flex size-8 items-center justify-center rounded-xl bg-navy text-[13px] font-semibold text-white" aria-label={`Rank ${index + 1}`}>
             {index + 1}
           </span>
         )}

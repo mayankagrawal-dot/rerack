@@ -12,16 +12,19 @@ export function PageHeader({
   title,
   subtitle,
   actions,
+  eyebrow,
 }: {
   title: string;
   subtitle?: ReactNode;
   actions?: ReactNode;
+  eyebrow?: string;
 }) {
   return (
-    <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <div className="mb-7 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
       <div className="min-w-0">
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-[34px]">{title}</h1>
-        {subtitle && <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-soft">{subtitle}</p>}
+        {eyebrow && <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-accent">{eyebrow}</p>}
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-[38px] sm:leading-[1.1]">{title}</h1>
+        {subtitle && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-soft sm:text-[15px]">{subtitle}</p>}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </div>
@@ -38,7 +41,7 @@ export function Card({
   padded?: boolean;
 }) {
   return (
-    <section className={cx("rounded-xl border border-line bg-card shadow-[0_1px_2px_rgba(18,26,43,0.04)]", padded && "p-5", className)}>
+    <section className={cx("rounded-2xl border border-line/80 bg-card shadow-card", padded && "p-5 sm:p-6", className)}>
       {children}
     </section>
   );
@@ -46,10 +49,10 @@ export function Card({
 
 export function CardTitle({ title, hint, right }: { title: string; hint?: ReactNode; right?: ReactNode }) {
   return (
-    <div className="mb-4 flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
-      <div>
-        <h2 className="text-[15px] font-semibold text-ink">{title}</h2>
-        {hint && <p className="mt-0.5 text-[13px] leading-snug text-ink-soft">{hint}</p>}
+    <div className="mb-5 flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+      <div className="min-w-0 flex-[1_1_15rem]">
+        <h2 className="text-base font-semibold tracking-tight text-ink">{title}</h2>
+        {hint && <p className="mt-1 text-[13px] leading-snug text-ink-soft">{hint}</p>}
       </div>
       {right}
     </div>
@@ -106,10 +109,11 @@ export function Button({
   ariaLabel,
 }: ButtonProps) {
   const cls = cx(
-    "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50",
-    size === "lg" ? "min-h-12 px-5 text-[15px]" : size === "sm" ? "min-h-9 px-3 text-[13px]" : "min-h-11 px-4 text-sm",
-    variant === "primary" && "bg-accent text-white shadow-sm hover:bg-accent-strong",
-    variant === "secondary" && "border border-line-strong bg-card text-ink hover:bg-paper",
+    "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50",
+    size === "lg" ? "min-h-12 px-5 text-[15px]" : size === "sm" ? "min-h-9 rounded-lg px-3 text-[13px]" : "min-h-11 px-4 text-sm",
+    variant === "primary" &&
+      "bg-gradient-to-b from-[#0f8a70] to-accent text-white shadow-[0_1px_0_rgba(255,255,255,0.18)_inset,0_6px_16px_-6px_rgba(11,122,99,0.6)] hover:to-accent-strong hover:shadow-[0_1px_0_rgba(255,255,255,0.18)_inset,0_8px_20px_-6px_rgba(11,122,99,0.7)]",
+    variant === "secondary" && "border border-line-strong bg-card text-ink shadow-[0_1px_2px_rgba(16,24,40,0.05)] hover:border-ink-faint hover:bg-paper/60",
     variant === "ghost" && "text-ink-soft hover:bg-paper hover:text-ink",
     variant === "danger" && "border border-risk/30 bg-card text-risk hover:bg-risk-soft",
     variant === "accentSoft" && "bg-accent-soft text-accent-strong hover:bg-accent-soft/70",
@@ -179,7 +183,7 @@ export function Callout({
     accent: "border-accent/20 bg-accent-soft text-ink",
   }[tone];
   return (
-    <div role={tone === "risk" || tone === "amber" ? "alert" : "note"} className={cx("rounded-lg border px-4 py-3 text-sm leading-relaxed", styles)}>
+    <div role={tone === "risk" || tone === "amber" ? "alert" : "note"} className={cx("rounded-xl border px-4 py-3.5 text-sm leading-relaxed", styles)}>
       {title && <p className="mb-0.5 font-semibold">{title}</p>}
       <div className="text-ink-soft [&_strong]:text-ink">{children}</div>
     </div>
@@ -216,7 +220,9 @@ export function EmptyState({
   return (
     <Card className="mx-auto max-w-xl text-center" padded={false}>
       <div className="px-6 py-12">
-        <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-accent-soft text-accent">{icon}</div>
+        <div className="mx-auto mb-5 flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-soft to-[#cfeadf] text-accent ring-1 ring-accent/15">
+          {icon}
+        </div>
         <h2 className="font-display text-2xl font-semibold text-ink">{title}</h2>
         <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-ink-soft">{children}</p>
         {actions && <div className="mt-6 flex flex-wrap justify-center gap-2">{actions}</div>}
@@ -239,7 +245,7 @@ export function Segmented<T extends string>({
   label: string;
 }) {
   return (
-    <div role="tablist" aria-label={label} className="inline-flex max-w-full overflow-x-auto rounded-lg border border-line bg-card p-1">
+    <div role="tablist" aria-label={label} className="inline-flex max-w-full overflow-x-auto rounded-xl border border-line bg-card p-1 shadow-card">
       {options.map((o) => (
         <button
           key={o.value}
@@ -248,8 +254,8 @@ export function Segmented<T extends string>({
           aria-selected={value === o.value}
           onClick={() => onChange(o.value)}
           className={cx(
-            "min-h-9 shrink-0 rounded-md px-3 text-[13px] font-medium transition-colors",
-            value === o.value ? "bg-navy text-white" : "text-ink-soft hover:bg-paper hover:text-ink"
+            "min-h-9 shrink-0 rounded-lg px-3.5 text-[13px] font-medium transition-colors",
+            value === o.value ? "bg-navy text-white shadow-sm" : "text-ink-soft hover:bg-paper hover:text-ink"
           )}
         >
           {o.label}

@@ -82,7 +82,7 @@ export default function ActionsPage() {
           { label: "Rejected", value: rejected, tone: "text-ink-soft" },
           { label: "Transfers to verify", value: awaitingVerify, tone: awaitingVerify > 0 ? "text-amber" : "text-ink-soft" },
         ].map((s) => (
-          <Card key={s.label} className="!p-4">
+          <Card key={s.label} className="!p-4 sm:!p-5">
             <p className="text-xs font-medium text-ink-soft">{s.label}</p>
             <p className={cx("mt-1 font-display text-3xl font-semibold tabular-nums", s.tone)}>{s.value}</p>
           </Card>

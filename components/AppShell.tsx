@@ -38,26 +38,32 @@ const NAV = [
   { href: "/rules", label: "Rules", icon: SlidersHorizontal, primary: false },
 ] as const;
 
-function Wordmark() {
+function Wordmark({ dark = false }: { dark?: boolean }) {
   return (
     <Link href="/" className="flex items-center gap-2.5" aria-label="Rerack home">
-      <span className="flex size-8 items-center justify-center rounded-lg bg-navy text-white">
+      <span
+        className={cx(
+          "flex size-9 items-center justify-center rounded-xl text-white",
+          dark ? "bg-gradient-to-br from-accent to-[#0a5c4b] shadow-[0_6px_16px_-6px_rgba(95,211,179,0.55)]" : "bg-navy"
+        )}
+      >
         <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
           <path d="M5 7h14M5 12h9M5 17h5" />
           <path d="m16 15 3 3 3-4" stroke="#5fd3b3" />
         </svg>
       </span>
-      <span className="font-display text-xl font-semibold tracking-tight text-ink">Rerack</span>
+      <span className={cx("font-display text-xl font-semibold tracking-tight", dark ? "text-white" : "text-ink")}>Rerack</span>
     </Link>
   );
 }
 
-function NavList({ onNavigate }: { onNavigate?: () => void }) {
+// The rail is dark on desktop; the phone menu reuses the same list on a light panel.
+function NavList({ onNavigate, dark = false }: { onNavigate?: () => void; dark?: boolean }) {
   const pathname = usePathname();
   const { dataset, decisions } = useAppState();
   const open = dataset ? dataset.actions.filter((a) => !decisions[a.candidate.id]).length : 0;
   return (
-    <nav aria-label="Main" className="flex flex-col gap-0.5">
+    <nav aria-label="Main" className="flex flex-col gap-1">
       {NAV.map((n) => {
         const active = n.href === "/" ? pathname === "/" : pathname.startsWith(n.href);
         const Icon = n.icon;
@@ -68,14 +74,27 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
             onClick={onNavigate}
             aria-current={active ? "page" : undefined}
             className={cx(
-              "flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors",
-              active ? "bg-accent-soft text-accent-strong" : "text-ink-soft hover:bg-paper hover:text-ink"
+              "relative flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors",
+              dark
+                ? active
+                  ? "bg-white/[0.08] text-white before:absolute before:inset-y-2.5 before:-left-3 before:w-1 before:rounded-r-full before:bg-mint"
+                  : "text-[#aab5cc] hover:bg-white/[0.05] hover:text-white"
+                : active
+                  ? "bg-accent-soft text-accent-strong"
+                  : "text-ink-soft hover:bg-paper hover:text-ink"
             )}
           >
-            <Icon className="size-[18px]" aria-hidden />
+            <Icon className={cx("size-[18px]", dark && active && "text-mint")} aria-hidden />
             <span className="flex-1">{n.label}</span>
             {n.href === "/actions" && open > 0 && (
-              <span className="rounded-full bg-navy px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-white">{open}</span>
+              <span
+                className={cx(
+                  "rounded-full px-1.5 py-0.5 text-[11px] font-semibold tabular-nums",
+                  dark ? "bg-mint text-rail" : "bg-navy text-white"
+                )}
+              >
+                {open}
+              </span>
             )}
           </Link>
         );
@@ -121,16 +140,17 @@ export default function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen md:grid md:grid-cols-[256px_1fr]">
       {/* Desktop navigation rail */}
-      <aside className="sticky top-0 hidden h-screen flex-col border-r border-line bg-card md:flex">
-        <div className="px-5 pb-4 pt-5">
-          <Wordmark />
+      <aside className="sticky top-0 hidden h-screen flex-col bg-rail bg-[radial-gradient(420px_260px_at_0%_0%,rgba(95,211,179,0.10),transparent_70%)] md:flex">
+        <div className="px-5 pb-6 pt-6">
+          <Wordmark dark />
         </div>
+        <p className="px-6 pb-2 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-[#6f7c99]">Workspace</p>
         <div className="flex-1 overflow-y-auto px-3">
-          <NavList />
+          <NavList dark />
         </div>
-        <div className="m-3 rounded-lg border border-line bg-paper p-3 text-xs leading-relaxed text-ink-soft">
-          <p className="mb-1 flex items-center gap-1.5 font-semibold text-ink">
-            <ShieldCheck className="size-3.5 text-accent" aria-hidden /> You stay in control
+        <div className="m-3 rounded-xl border border-rail-line bg-rail-soft p-3.5 text-xs leading-relaxed text-[#aab5cc]">
+          <p className="mb-1 flex items-center gap-1.5 font-semibold text-white">
+            <ShieldCheck className="size-3.5 text-mint" aria-hidden /> You stay in control
           </p>
           Approving an action records your decision here. Rerack never moves stock or changes prices.
         </div>
@@ -138,7 +158,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
       <div className="min-w-0">
         {/* Header */}
-        <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur">
+        <header className="sticky top-0 z-20 border-b border-line/70 bg-paper/75 backdrop-blur-md">
           <div className="mx-auto flex max-w-[1240px] items-center gap-3 px-4 py-3 sm:px-6">
             <button
               type="button"
@@ -167,7 +187,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
                 type="button"
                 onClick={openWindowDialog}
                 title="Change the dates the sales figures cover"
-                className="hidden max-w-[320px] items-center gap-1.5 rounded-full border border-line-strong bg-card px-3 py-1.5 text-xs font-medium text-ink transition-colors hover:border-accent md:inline-flex"
+                className="hidden max-w-[320px] items-center gap-1.5 rounded-full border border-line-strong bg-card px-3 py-1.5 text-xs font-medium text-ink shadow-[0_1px_2px_rgba(16,24,40,0.05)] transition-colors hover:border-accent md:inline-flex"
               >
                 <CalendarRange className="size-3.5 shrink-0 text-accent" aria-hidden />
                 <span className="truncate">Sales window: {windowText}</span>
@@ -180,7 +200,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
               <Link
                 href="/activity"
                 aria-label="Activity and reports"
-                className="inline-flex size-10 items-center justify-center rounded-lg border border-line bg-card text-ink-soft hover:text-ink"
+                className="inline-flex size-10 items-center justify-center rounded-xl border border-line bg-card text-ink-soft shadow-[0_1px_2px_rgba(16,24,40,0.05)] hover:text-ink"
               >
                 <History className="size-[18px]" aria-hidden />
               </Link>
@@ -193,7 +213,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
           )}
         </header>
 
-        <main key={pathname} className="mx-auto max-w-[1240px] px-4 pb-28 pt-6 sm:px-6 md:pb-12 md:pt-8">
+        <main key={pathname} className="rise-in mx-auto max-w-[1240px] px-4 pb-28 pt-6 sm:px-6 md:pb-12 md:pt-8 lg:px-8">
           {children}
         </main>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { Fragment, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   CheckCircle2,
@@ -191,9 +191,9 @@ export default function ImportPage() {
                 <>
                   CSV only, one file per store. Use these column names:{" "}
                   {COLUMNS.map((c) => (
-                    <code key={c} className="mr-1 rounded bg-paper px-1 py-0.5 font-mono text-[11.5px] text-ink">
-                      {c}
-                    </code>
+                    <Fragment key={c}>
+                      <code className="rounded bg-paper px-1 py-0.5 font-mono text-[11.5px] text-ink">{c}</code>{" "}
+                    </Fragment>
                   ))}
                   or upload your billing software&rsquo;s export as it is and match its columns below.
                 </>

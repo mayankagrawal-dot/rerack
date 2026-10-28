@@ -22,8 +22,38 @@ import { fmtAgo } from "@/lib/format";
 import { toast } from "@/lib/toast";
 import { storeNameFromFile, validateFiles } from "@/lib/validate";
 import type { FileError } from "@/lib/types";
+import { ColumnMatcher } from "@/components/ColumnMatcher";
+import {
+  FIELDS,
+  applyMapping,
+  columnSignature,
+  guessMapping,
+  hasRerackColumns,
+  isComplete,
+  loadSavedMapping,
+  readHeaders,
+  saveMapping,
+  type ColumnMapping,
+  type FieldKey,
+} from "@/lib/columnMap";
 
 const COLUMNS = ["item", "size", "colour", "date_received", "units_on_hand", "units_sold"];
+
+// A file with Rerack's own column names is used as it is. Any other file gets its columns matched:
+// from a previous upload with the same columns if there is one, otherwise from a guess the owner checks.
+function prepareFile(id: string, name: string, size: number, text: string): ImportFile {
+  const file: ImportFile = { id, name, size, text, store: storeNameFromFile(name) };
+  const { headers, sample } = readHeaders(text);
+  if (headers.length === 0 || hasRerackColumns(headers)) return file;
+  const saved = loadSavedMapping(headers);
+  return withMapping({ ...file, columns: { raw: text, headers, sample, mapping: guessMapping(headers), saved: false } }, saved, !!saved);
+}
+
+function withMapping(f: ImportFile, mapping: ColumnMapping | null, saved = false): ImportFile {
+  if (!f.columns) return f;
+  const m = mapping ?? f.columns.mapping;
+  return { ...f, text: isComplete(m) ? applyMapping(f.columns.raw, m) : f.columns.raw, columns: { ...f.columns, mapping: m, saved } };
+}
 
 export default function ImportPage() {
   const { dataset, thresholds, salesWindow } = useAppState();
@@ -38,6 +68,7 @@ export default function ImportPage() {
   const [stage, setStage] = useState<"idle" | "processing" | "done">("idle");
   const [seconds, setSeconds] = useState(0);
   const [serverErrors, setServerErrors] = useState<FileError[]>([]);
+  const [matcherOpen, setMatcherOpen] = useState<Record<string, boolean>>({});
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Live checks in the browser, the same code the server runs again before anything is processed.
@@ -60,11 +91,25 @@ export default function ImportPage() {
       } catch {
         text = "";
       }
-      added.push({ id: `${f.name}-${Date.now()}-${added.length}`, name: f.name, size: f.size, text, store: storeNameFromFile(f.name) });
+      added.push(prepareFile(`${f.name}-${Date.now()}-${added.length}`, f.name, f.size, text));
     }
     setStage("idle");
     setServerErrors([]);
     setFiles((cur) => [...cur, ...added]);
+  }
+
+  // One choice applies to every file with the same column names, since they come from the same billing software.
+  function chooseColumn(id: string, key: FieldKey, header: string) {
+    setStage("idle");
+    setFiles((cur) => {
+      const target = cur.find((x) => x.id === id)?.columns;
+      if (!target) return cur;
+      const mapping: ColumnMapping = { ...target.mapping, [key]: header };
+      // A column can only hold one value, so take it away from any other field that had it.
+      for (const f of FIELDS) if (f.key !== key && header && mapping[f.key] === header) mapping[f.key] = "";
+      const sig = columnSignature(target.headers);
+      return cur.map((x) => (x.columns && columnSignature(x.columns.headers) === sig ? withMapping(x, mapping) : x));
+    });
   }
 
   function loadDemo() {
@@ -101,6 +146,7 @@ export default function ImportPage() {
       toast("We couldn't process these files. See the problems listed.", "warn");
       return;
     }
+    for (const f of files) if (f.columns) saveMapping(f.columns.headers, f.columns.mapping);
     loadDataset(res, {
       source: isDemo ? "demo" : "upload",
       businessName: business.trim() || "My store chain",
@@ -136,19 +182,20 @@ export default function ImportPage() {
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           {/* 1. Upload */}
           <Card>
             <CardTitle
               title="1. Add your store files"
               hint={
                 <>
-                  CSV only, one file per store, with these columns:{" "}
+                  CSV only, one file per store. Use these column names:{" "}
                   {COLUMNS.map((c) => (
                     <code key={c} className="mr-1 rounded bg-paper px-1 py-0.5 font-mono text-[11.5px] text-ink">
                       {c}
                     </code>
                   ))}
+                  or upload your billing software&rsquo;s export as it is and match its columns below.
                 </>
               }
             />
@@ -235,7 +282,17 @@ export default function ImportPage() {
                         </button>
                       </div>
 
-                      {rep && (rep.errors.length > 0 || rep.warnings.length > 0) && (
+                      {f.columns && (
+                        <ColumnMatcher
+                          fileId={f.id}
+                          columns={f.columns}
+                          open={matcherOpen[f.id] ?? !f.columns.saved}
+                          onToggle={() => setMatcherOpen((o) => ({ ...o, [f.id]: !(o[f.id] ?? !f.columns?.saved) }))}
+                          onChange={(key, header) => chooseColumn(f.id, key, header)}
+                        />
+                      )}
+
+                      {rep && (rep.errors.length > 0 || rep.warnings.length > 0) && !(f.columns && !isComplete(f.columns.mapping)) && (
                         <ul className="mt-2.5 space-y-1 pl-8 text-[13px]">
                           {rep.errors.map((m, k) => (
                             <li key={`e${k}`} className="text-risk">
@@ -435,7 +492,8 @@ export default function ImportPage() {
               )}
             </div>
             <p className="mt-3 text-[11.5px] leading-relaxed text-ink-faint">
-              Your original files are kept exactly as uploaded. CSV upload is the only way data gets in. There is no billing-system connection.
+              Your original files are never changed. If you matched columns, Rerack sends only those six columns. CSV upload is the only way
+              data gets in. There is no billing-system connection.
             </p>
           </Card>
 

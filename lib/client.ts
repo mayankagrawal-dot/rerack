@@ -3,6 +3,7 @@
 import { DEMO_BUSINESS, demoFiles } from "./demoData";
 import { loadDataset, type Dataset } from "./appState";
 import type { Thresholds } from "./config";
+import type { ColumnMapping } from "./columnMap";
 import type { AnalyzeResponse, FileError } from "./types";
 import { DEFAULT_WINDOW_DAYS, daysInWindow, isoOf, presetWindow, windowDates, windowLabel, type SalesWindow, type WindowInfo } from "./window";
 
@@ -10,8 +11,16 @@ export type ImportFile = {
   id: string;
   name: string;
   size: number;
-  text: string;
+  text: string; // what is checked and sent: the file itself, or its columns renamed to Rerack's
   store: string;
+  // Only for a file whose column names differ from Rerack's: the file as uploaded, and which column is which.
+  columns?: {
+    raw: string;
+    headers: string[];
+    sample: Record<string, string>;
+    mapping: ColumnMapping;
+    saved: boolean; // the matching came from a previous upload with the same columns
+  };
 };
 
 export const DEMO_NOTE = "Diwali in 3 weeks. Don't mark down Navy Kurta.";

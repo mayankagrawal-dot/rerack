@@ -16,15 +16,22 @@ export function storeNameFromFile(fileName: string): string {
     .join(" ");
 }
 
-// Accepts 2026-08-20, 20/08/2026 and 20-08-2026. Returns days between that date and today (UTC), or null.
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+
+// Accepts 2026-08-20, 2026/08/20, 20/08/2026, 20-08-2026, 20.08.2026 and 20-Aug-2026 (or 20-Aug-26, as billing
+// software often exports). Returns days between that date and today (UTC), or null.
 function daysSince(value: string, today: Date): number | null {
   const v = value.trim();
   let y: number, m: number, d: number;
-  let match = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(v);
+  let match = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/.exec(v);
   if (match) {
     [y, m, d] = [Number(match[1]), Number(match[2]), Number(match[3])];
-  } else if ((match = /^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/.exec(v))) {
+  } else if ((match = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/.exec(v))) {
     [d, m, y] = [Number(match[1]), Number(match[2]), Number(match[3])];
+  } else if ((match = /^(\d{1,2})[\s-]([a-z]{3})[a-z]*[\s-](\d{2}|\d{4})$/i.exec(v))) {
+    const month = MONTHS.indexOf(match[2].toLowerCase());
+    if (month < 0) return null;
+    [d, m, y] = [Number(match[1]), month + 1, Number(match[3].length === 2 ? `20${match[3]}` : match[3])];
   } else {
     return null;
   }
@@ -35,9 +42,11 @@ function daysSince(value: string, today: Date): number | null {
   return Math.floor((todayUtc - then) / 86_400_000);
 }
 
+// A whole number, 0 or more. Exports often write 1,200 or 12.00, so those are accepted too.
 function parseCount(value: string | undefined): number | null {
-  const v = (value ?? "").trim();
-  return /^\d+$/.test(v) ? Number(v) : null;
+  const v = (value ?? "").trim().replace(/,/g, "");
+  const match = /^(\d+)(\.0+)?$/.exec(v);
+  return match ? Number(match[1]) : null;
 }
 
 export type ValidationResult = {
@@ -169,7 +178,7 @@ export function validateFiles(files: RawFile[], todayOverride?: Date): Validatio
       const daysOld = daysSince(raw.date_received ?? "", today());
       if (daysOld === null)
         return fail(
-          `${file.name} row ${line}: date_received '${(raw.date_received ?? "").trim()}' isn't a date (use 2026-08-20 or 20/08/2026).`
+          `${file.name} row ${line}: date_received '${(raw.date_received ?? "").trim()}' isn't a date (use 2026-08-20, 20/08/2026 or 20-Aug-2026).`
         );
       if (daysOld < 0) return fail(`${file.name} row ${line}: date_received is in the future.`);
 

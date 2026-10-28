@@ -46,3 +46,8 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# one-off helper that sends the API key to Vercel
+/set-vercel-key.ps1
+/check-vercel-key.ps1
+/SET-VERCEL-KEY.bat

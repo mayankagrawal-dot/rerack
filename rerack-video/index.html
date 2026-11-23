@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --night: #0f1a33;
+        --night-2: #1a2748;
+        --panel: #1b2949;
+        --panel-line: #2c3c66;
+        --ink: #f6f3ec;
+        --muted: #aab5cc;
+        --mint: #5fd3b3;
+        --accent: #0b7a63;
+        --amber: #f2b255;
+        --risk: #ff8a7a;
+        --card: #ffffff;
+        --card-ink: #121a2b;
+        --card-soft: #566074;
+        --paper: #f6f3ec;
+        --font-display: Georgia, "Times New Roman", serif;
+        --font-ui: "Segoe UI", system-ui, -apple-system, sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--night); }
+      #root {
+        position: relative; width: 1920px; height: 1080px; overflow: hidden;
+        background: linear-gradient(160deg, var(--night-2) 0%, var(--night) 70%);
+        font-family: var(--font-ui); color: var(--ink);
+      }
+      #glow {
+        position: absolute; left: 1100px; top: -300px; width: 1400px; height: 1400px; border-radius: 50%;
+        background: radial-gradient(circle, rgba(95, 211, 179, 0.16) 0%, rgba(95, 211, 179, 0) 62%); opacity: 0;
+      }
+      .dust { position: absolute; border-radius: 50%; background: var(--mint); opacity: 0; }
+      .scene { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+      .abs { position: absolute; }
+      .display { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.01em; }
+      .eyebrow { font-size: 30px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--mint); }
+      h1.display { font-size: 92px; line-height: 1.1; }
+      h2.display { font-size: 76px; line-height: 1.12; }
+      .cap { font-size: 46px; font-weight: 400; color: var(--muted); line-height: 1.3; }
+      .cap b { color: var(--ink); font-weight: 600; }
+
+      /* Scene 1: store tiles */
+      .tile {
+        position: absolute; top: 490px; width: 300px; height: 330px; border-radius: 26px;
+        background: var(--panel); border: 2px solid var(--panel-line); padding: 28px 28px;
+      }
+      .tile .tn { font-size: 30px; font-weight: 600; color: var(--muted); }
+      .tile .big { font-family: var(--font-display); font-size: 130px; line-height: 1.05; margin-top: 18px; }
+      .tile .lbl { font-size: 28px; color: var(--muted); margin-top: -2px; }
+      .tile .sold { font-size: 32px; font-weight: 600; margin-top: 22px; color: var(--ink); }
+
+      /* Scene 2 */
+      .box {
+        position: absolute; top: 380px; width: 520px; height: 400px; border-radius: 28px;
+        background: var(--panel); border: 2px solid var(--panel-line); padding: 34px;
+      }
+      .box h3 { font-family: var(--font-display); font-size: 54px; font-weight: 400; line-height: 1.1; }
+      .box p { font-size: 30px; color: var(--muted); margin-top: 14px; line-height: 1.35; }
+      .arrow { position: absolute; top: 540px; font-size: 80px; color: var(--mint); }
+      .file { position: absolute; width: 150px; height: 64px; border-radius: 10px; background: #243660; border: 2px solid var(--panel-line);
+        font-size: 22px; padding: 18px 12px; color: var(--ink); text-align: center; white-space: nowrap; }
+      #track { position: absolute; left: 210px; top: 560px; width: 1500px; height: 70px; border-radius: 35px; overflow: hidden; display: flex; }
+      .seg { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 600; color: #0f1a33; }
+      #marker { position: absolute; left: 210px; top: 520px; width: 6px; height: 150px; border-radius: 3px; background: #fff; box-shadow: 0 0 24px rgba(255,255,255,0.6); }
+      #sale {
+        position: absolute; left: 1210px; top: 740px; padding: 20px 40px; border-radius: 20px; background: var(--risk); color: #3a0d08;
+        font-size: 46px; font-weight: 700; letter-spacing: 0.04em; opacity: 0;
+      }
+
+      /* Scene 3 */
+      .tagline { position: absolute; left: 0; width: 1920px; text-align: center; font-family: var(--font-display); font-size: 84px; line-height: 1.15; }
+
+      /* Scene 4 */
+      .step { position: absolute; top: 230px; width: 540px; height: 620px; border-radius: 30px; background: var(--panel); border: 2px solid var(--panel-line); }
+      .step .hd { position: absolute; left: 32px; top: 30px; display: flex; align-items: center; gap: 18px; }
+      .step .n { width: 58px; height: 58px; border-radius: 50%; background: var(--mint); color: #0f1a33; font-size: 32px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+      .step .t { font-family: var(--font-display); font-size: 50px; }
+      .drop { position: absolute; left: 32px; top: 120px; width: 476px; height: 320px; border: 3px dashed #4a5f95; border-radius: 22px; }
+      .chip { position: absolute; padding: 12px 18px; border-radius: 14px; background: #243660; border: 2px solid var(--panel-line); font-size: 25px; white-space: nowrap; }
+      .note { position: absolute; left: 32px; top: 470px; width: 476px; padding: 20px 22px; border-radius: 18px; background: rgba(95, 211, 179, 0.12); border: 2px solid rgba(95, 211, 179, 0.4);
+        font-size: 30px; color: var(--mint); font-style: italic; }
+      .row { position: absolute; left: 32px; width: 476px; height: 56px; border-radius: 12px; display: flex; align-items: center; padding: 0 18px; font-size: 27px; background: #223158; border: 2px solid transparent; }
+      .row span:nth-child(1) { flex: 1.5; } .row span:nth-child(2) { flex: 1; text-align: right; } .row span:nth-child(3) { flex: 1; text-align: right; }
+      .row.head { background: transparent; color: var(--muted); font-size: 22px; letter-spacing: 0.08em; text-transform: uppercase; }
+      .formula { position: absolute; left: 32px; top: 500px; width: 476px; font-size: 28px; color: var(--muted); line-height: 1.4; }
+      .rank { position: absolute; left: 32px; width: 476px; height: 124px; border-radius: 18px; background: #223158; padding: 18px 22px; border: 2px solid var(--panel-line); }
+      .rank .k { font-size: 22px; font-weight: 700; letter-spacing: 0.1em; color: var(--mint); }
+      .rank .v { font-size: 29px; line-height: 1.25; margin-top: 6px; }
+
+      /* Scene 5: app card */
+      #card { position: absolute; left: 140px; top: 120px; width: 1020px; height: 760px; border-radius: 34px; background: var(--card); color: var(--card-ink);
+        box-shadow: 0 40px 90px -30px rgba(0,0,0,0.6); }
+      .badge { position: absolute; top: 44px; padding: 10px 22px; border-radius: 999px; font-size: 24px; font-weight: 600; }
+      #card .ttl { position: absolute; left: 48px; top: 118px; width: 920px; font-family: var(--font-display); font-size: 56px; line-height: 1.12; }
+      .stat { position: absolute; top: 290px; width: 290px; height: 150px; border-radius: 20px; background: #f6f3ec; padding: 22px 26px; }
+      .stat .a { font-family: var(--font-display); font-size: 60px; line-height: 1; }
+      .stat .b { font-size: 24px; color: var(--card-soft); margin-top: 10px; }
+      #reason { position: absolute; left: 48px; top: 468px; width: 924px; height: 130px; border-radius: 20px; background: #f1eee5; padding: 20px 26px; font-size: 29px; line-height: 1.38; color: #2c364a; }
+      #reason small { display: block; font-size: 20px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--card-soft); margin-bottom: 6px; font-weight: 600; }
+      .btn { position: absolute; top: 636px; height: 78px; border-radius: 18px; font-size: 32px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+      #approve { left: 48px; width: 230px; background: #0b7a63; color: #fff; }
+      #edit { left: 300px; width: 170px; border: 2px solid #d6d0c1; }
+      #reject { left: 492px; width: 190px; border: 2px solid #f0c0b8; color: #b42318; }
+      .pill { position: absolute; right: 48px; top: 46px; padding: 10px 22px; border-radius: 999px; font-size: 24px; font-weight: 600; }
+      #cursor { position: absolute; left: 0; top: 0; width: 44px; height: 44px; border-radius: 50%; background: rgba(18,26,43,0.18); border: 3px solid #121a2b; opacity: 0; z-index: 5; }
+      #log { position: absolute; left: 1230px; top: 120px; width: 550px; height: 760px; border-radius: 34px; background: var(--panel); border: 2px solid var(--panel-line); padding: 40px 36px; }
+      #log h3 { font-family: var(--font-display); font-size: 46px; font-weight: 400; }
+      .entry { position: absolute; left: 36px; width: 478px; padding: 18px 22px; border-radius: 16px; background: #223158; font-size: 26px; line-height: 1.3; }
+      .entry b { display: block; font-size: 21px; color: var(--muted); font-weight: 600; letter-spacing: 0.06em; margin-bottom: 4px; }
+
+      /* Scene 6 */
+      .trust { position: absolute; left: 300px; width: 1400px; display: flex; align-items: center; gap: 40px; font-family: var(--font-display); font-size: 70px; line-height: 1.1; }
+      .tick { flex: none; width: 92px; height: 92px; border-radius: 50%; background: rgba(95, 211, 179, 0.16); border: 3px solid var(--mint); display: flex; align-items: center; justify-content: center; }
+
+      /* Scene 7 */
+      #cta { position: absolute; left: 400px; top: 700px; width: 1120px; white-space: nowrap; padding: 26px 0; text-align: center; border-radius: 22px; background: var(--mint); color: #0a2a22; font-size: 42px; font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="69" data-width="1920" data-height="1080">
+      <div id="glow"></div>
+      <div id="dust"></div>
+
+      <!-- Scene 1: the hidden problem (0 - 8.6) -->
+      <div id="s1" class="scene clip" data-start="0" data-duration="8.8" data-track-index="1">
+        <p id="s1-eye" class="eyebrow abs" style="left:130px; top:120px">Mid-season</p>
+        <h1 id="s1-h" class="display abs" style="left:130px; top:175px; width:1600px">Five stores. Same shirt.<br />Very different stories.</h1>
+        <div class="tile" id="t1" style="left:130px"><div class="tn">HSR Layout</div><div class="big">9</div><div class="lbl">on hand</div><div class="sold">5 sold</div></div>
+        <div class="tile" id="t2" style="left:470px"><div class="tn">Indiranagar</div><div class="big">9</div><div class="lbl">on hand</div><div class="sold">5 sold</div></div>
+        <div class="tile" id="t3" style="left:810px"><div class="tn">Jayanagar</div><div class="big">12</div><div class="lbl">on hand</div><div class="sold">0 sold</div></div>
+        <div class="tile" id="t4" style="left:1150px"><div class="tn">Koramangala</div><div class="big">9</div><div class="lbl">on hand</div><div class="sold">5 sold</div></div>
+        <div class="tile" id="t5" style="left:1490px"><div class="tn">Whitefield</div><div class="big">3</div><div class="lbl">on hand</div><div class="sold">14 sold</div></div>
+        <p id="s1-cap" class="cap abs" style="left:130px; top:900px; width:1660px">Navy Kurta, size M. <b>Fast in one store, stuck in another.</b></p>
+      </div>
+
+      <!-- Scene 2: the weekly routine and the cost (8.2 - 20.2) -->
+      <div id="s2" class="scene clip" data-start="8.2" data-duration="12" data-track-index="2">
+        <div id="s2a">
+          <p class="eyebrow abs" id="s2-eye" style="left:210px; top:160px">Every week</p>
+          <h2 class="display abs" id="s2-h" style="left:210px; top:215px; width:1500px">Five reports. One owner. Too little time.</h2>
+          <div class="box" id="b1" style="left:210px">
+            <h3>5 separate reports</h3><p>One export per store, in different files.</p>
+            <div class="file" id="f1" style="left:34px; top:250px">hsr.csv</div>
+            <div class="file" id="f2" style="left:204px; top:250px">indira.csv</div>
+            <div class="file" id="f3" style="left:34px; top:330px">jaya.csv</div>
+            <div class="file" id="f4" style="left:204px; top:330px">kora.csv</div>
+            <div class="file" id="f5" style="left:374px; top:290px">white.csv</div>
+          </div>
+          <div class="arrow" id="ar1" style="left:760px">&rarr;</div>
+          <div class="box" id="b2" style="left:870px; width:450px"><h3>Merged by hand</h3><p>Copy, paste, match item names, fix mistakes.</p></div>
+          <div class="arrow" id="ar2" style="left:1340px">&rarr;</div>
+          <div class="box" id="b3" style="left:1440px; width:390px"><h3>Decided by eye</h3><p>Slow sellers get missed.</p></div>
+        </div>
+        <div id="s2b">
+          <h2 class="display abs" id="s2b-h" style="left:210px; top:180px; width:1500px">Whatever is left is cleared at the<br /><span style="color:var(--risk)">end-of-season sale.</span></h2>
+          <div id="track">
+            <div class="seg" style="background:#5fd3b3">0-30 days</div>
+            <div class="seg" style="background:#f2d67a">31-60 days</div>
+            <div class="seg" style="background:#f2b255">61-90 days</div>
+            <div class="seg" style="background:#ff8a7a">Over 90 days</div>
+          </div>
+          <div id="marker"></div>
+          <p class="cap abs" id="s2b-cap" style="left:210px; top:700px; width:900px">The longer stock sits, the less it is worth.</p>
+          <div id="sale">DEEP DISCOUNT</div>
+        </div>
+      </div>
+
+      <!-- Scene 3: the brand (19.8 - 28.2) -->
+      <div id="s3" class="scene clip" data-start="19.8" data-duration="8.4" data-track-index="3">
+        <div class="abs" id="s3-logo" style="left:660px; top:130px; width:600px; display:flex; align-items:center; justify-content:center; gap:26px">
+          <span style="width:110px; height:110px; border-radius:30px; background:linear-gradient(135deg,#0b7a63,#0a5c4b); display:flex; align-items:center; justify-content:center; box-shadow:0 12px 40px -10px rgba(95,211,179,0.6)">
+            <svg viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M5 7h14M5 12h9M5 17h5" /><path d="m16 15 3 3 3-4" stroke="#5fd3b3" /></svg>
+          </span>
+          <span class="display" style="font-size:150px">Rerack</span>
+        </div>
+        <p class="tagline" id="tg1" style="top:400px">Know what to move.</p>
+        <p class="tagline" id="tg2" style="top:510px">Know what to mark down.</p>
+        <p class="tagline" id="tg3" style="top:620px; color:var(--mint)">And what to save before the season ends.</p>
+        <p class="cap abs" id="s3-sub" style="left:0; top:850px; width:1920px; text-align:center">A weekly decision tool for multi-store clothing chains.</p>
+      </div>
+
+      <!-- Scene 4: how it works (27.8 - 43.2) -->
+      <div id="s4" class="scene clip" data-start="27.8" data-duration="15.4" data-track-index="4">
+        <p class="eyebrow abs" id="s4-eye" style="left:120px; top:80px">How Rerack works</p>
+        <h2 class="display abs" id="s4-h" style="left:120px; top:120px; width:1600px; font-size:64px">Three steps, one short list.</h2>
+
+        <div class="step" id="st1" style="left:120px">
+          <div class="hd"><span class="n">1</span><span class="t">Upload</span></div>
+          <div class="drop">
+            <div class="chip" id="c1" style="left:24px; top:30px">hsr-layout.csv</div>
+            <div class="chip" id="c2" style="left:236px; top:30px">indiranagar.csv</div>
+            <div class="chip" id="c3" style="left:24px; top:120px">jayanagar.csv</div>
+            <div class="chip" id="c4" style="left:236px; top:120px">koramangala.csv</div>
+            <div class="chip" id="c5" style="left:24px; top:210px">whitefield.csv</div>
+          </div>
+          <div class="note" id="nt">&ldquo;Diwali in 3 weeks.&rdquo;</div>
+        </div>
+
+        <div class="step" id="st2" style="left:690px">
+          <div class="hd"><span class="n">2</span><span class="t">Analyse</span></div>
+          <div class="row head" style="top:116px"><span>Store</span><span>On hand</span><span>Sold</span></div>
+          <div class="row" id="r1" style="top:176px"><span>HSR Layout</span><span>9</span><span>5</span></div>
+          <div class="row" id="r2" style="top:238px"><span>Indiranagar</span><span>9</span><span>5</span></div>
+          <div class="row" id="r3" style="top:300px"><span>Jayanagar</span><span>12</span><span>0</span></div>
+          <div class="row" id="r4" style="top:362px"><span>Koramangala</span><span>9</span><span>5</span></div>
+          <div class="row" id="r5" style="top:424px"><span>Whitefield</span><span>3</span><span>14</span></div>
+          <div class="formula" id="fm">Stock cover = on hand &divide; weekly sales. <span style="color:var(--mint)">Plain arithmetic, done by code.</span></div>
+        </div>
+
+        <div class="step" id="st3" style="left:1260px">
+          <div class="hd"><span class="n">3</span><span class="t">Rank</span></div>
+          <div class="rank" id="k1" style="top:116px"><div class="k">1 &middot; MARKDOWN</div><div class="v">White Shirt, XL, by 15%</div></div>
+          <div class="rank" id="k2" style="top:256px"><div class="k">2 &middot; MARKDOWN</div><div class="v">White Sneakers, UK 7, by 15%</div></div>
+          <div class="rank" id="k3" style="top:396px"><div class="k">3 &middot; TRANSFER</div><div class="v">12 Navy Kurta, M, Jayanagar to Whitefield</div></div>
+          <div class="formula" id="fm3" style="top:540px">The top 10, with the numbers and a reason for each.</div>
+        </div>
+        <p class="cap abs" id="s4-cap" style="left:120px; top:920px; width:1680px"><b>From five files to a ranked list in about three seconds.</b></p>
+      </div>
+
+      <!-- Scene 5: the owner decides (42.8 - 55.2) -->
+      <div id="s5" class="scene clip" data-start="42.8" data-duration="12.4" data-track-index="5">
+        <div id="card">
+          <span class="badge" id="bd1" style="left:48px; background:#fcefd6; color:#9a5208">Markdown review</span>
+          <span class="badge" id="bd2" style="left:284px; background:#fde8e4; color:#b42318">High priority</span>
+          <span class="pill" id="pill1" style="background:#eef0f4; color:#566074">Awaiting your decision</span>
+          <span class="pill" id="pill2" style="background:#e1f2ec; color:#086049; opacity:0">&#10003; Approved</span>
+          <div class="ttl" id="ttl">Mark down White Shirt, size XL by 15%</div>
+          <div class="stat" id="sa" style="left:48px"><div class="a">41</div><div class="b">units in 5 stores</div></div>
+          <div class="stat" id="sb" style="left:366px"><div class="a">5</div><div class="b">sold in 4 weeks</div></div>
+          <div class="stat" id="sc" style="left:684px"><div class="a">95</div><div class="b">days since receipt</div></div>
+          <div id="reason"><small>Why, from rules</small>Only 5 sold chain-wide in 4 weeks against 41 on hand; the oldest stock is 95 days old.</div>
+          <div class="btn" id="approve">Approve</div>
+          <div class="btn" id="edit">Edit</div>
+          <div class="btn" id="reject">Reject</div>
+        </div>
+        <div id="cursor"></div>
+        <div id="log">
+          <h3>Activity log</h3>
+          <div class="entry" id="e1" style="top:130px"><b>10:40</b>5 files imported</div>
+          <div class="entry" id="e2" style="top:250px"><b>10:40</b>10 actions proposed</div>
+          <div class="entry" id="e3" style="top:370px; background:rgba(95,211,179,0.16); border:2px solid rgba(95,211,179,0.5)"><b>10:42</b>Approved: Mark down White Shirt, XL, by 15%</div>
+        </div>
+        <p class="cap abs" id="s5-cap" style="left:140px; top:930px; width:1640px"><b>Every number is shown.</b> You approve, edit or reject. Every decision is time-stamped.</p>
+      </div>
+
+      <!-- Scene 6: trust (54.8 - 62.2) -->
+      <div id="s6" class="scene clip" data-start="54.8" data-duration="7.4" data-track-index="6">
+        <p class="eyebrow abs" id="s6-eye" style="left:300px; top:190px">Why you can trust it</p>
+        <div class="trust" id="tr1" style="top:330px"><span class="tick"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="#5fd3b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10" /></svg></span>Code does every number.</div>
+        <div class="trust" id="tr2" style="top:500px"><span class="tick"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="#5fd3b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10" /></svg></span>The AI only ranks and explains.</div>
+        <div class="trust" id="tr3" style="top:670px"><span class="tick"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="#5fd3b3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10" /></svg></span>Nothing moves without you.</div>
+        <p class="cap abs" id="s6-cap" style="left:300px; top:880px; width:1400px; font-size:36px">If the AI is down, the list still works.</p>
+      </div>
+
+      <!-- Scene 7: close (61.8 - 69) -->
+      <div id="s7" class="scene clip" data-start="61.8" data-duration="7.2" data-track-index="7">
+        <div class="abs" id="s7-logo" style="left:560px; top:230px; width:800px; display:flex; align-items:center; justify-content:center; gap:30px">
+          <span style="width:130px; height:130px; border-radius:34px; background:linear-gradient(135deg,#0b7a63,#0a5c4b); display:flex; align-items:center; justify-content:center; box-shadow:0 12px 40px -10px rgba(95,211,179,0.6)">
+            <svg viewBox="0 0 24 24" width="76" height="76" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M5 7h14M5 12h9M5 17h5" /><path d="m16 15 3 3 3-4" stroke="#5fd3b3" /></svg>
+          </span>
+          <span class="display" style="font-size:170px">Rerack</span>
+        </div>
+        <p class="tagline" id="s7-tag" style="top:470px; font-size:68px">Know what to move, mark down and save.</p>
+        <div id="cta">Explore the demo &nbsp;&middot;&nbsp; rerack-nine.vercel.app</div>
+        <p class="cap abs" id="s7-fine" style="left:0; top:900px; width:1920px; text-align:center; font-size:30px">Built as a hackathon MVP. The demo chain is fictional.</p>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      // Deterministic drifting dust (no Math.random).
+      const dustHost = document.getElementById("dust");
+      const dots = [];
+      for (let i = 0; i < 22; i++) {
+        const d = document.createElement("div");
+        d.className = "dust";
+        const s = 5 + (i % 4) * 2;
+        d.style.left = ((i * 211.7) % 1860) + 30 + "px";
+        d.style.top = 60 + ((i * 163.3) % 960) + "px";
+        d.style.width = d.style.height = s + "px";
+        dustHost.appendChild(d);
+        dots.push({ el: d, o: 0.12 + (i % 5) * 0.05, dy: -60 - (i % 4) * 30 });
+      }
+
+      const tl = gsap.timeline({ paused: true });
+      const IN = { opacity: 0, y: 30 };
+      const show = (sel, at, d = 0.7, from = IN) => tl.fromTo(sel, from, { opacity: 1, y: 0, x: 0, scale: 1, duration: d, ease: "power2.out" }, at);
+      const out = (sel, at, d = 0.6) => tl.to(sel, { opacity: 0, duration: d, ease: "power1.in" }, at);
+
+      // Ambient: glow and dust for the whole film.
+      tl.to("#glow", { opacity: 1, duration: 3, ease: "sine.inOut" }, 0);
+      dots.forEach((d) => {
+        tl.to(d.el, { opacity: d.o, duration: 2.5, ease: "sine.out" }, 0.2);
+        tl.to(d.el, { y: d.dy, duration: 69, ease: "none" }, 0);
+      });
+
+      // Scenes fade in and out as whole layers.
+      const scene = (id, a, b) => {
+        if (a > 0) tl.fromTo(id, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power1.out" }, a);
+        out(id, b - 0.6);
+      };
+
+      // ---- Scene 1 (0 - 8.6)
+      tl.fromTo("#s1-h", { scale: 1.03, transformOrigin: "0% 50%" }, { scale: 1, duration: 3, ease: "power2.out" }, 0);
+      ["#t1", "#t2", "#t3", "#t4", "#t5"].forEach((t, i) => show(t, 1.4 + i * 0.28, 0.7, { opacity: 0, y: 50 }));
+      tl.to(["#t1", "#t2", "#t4"], { opacity: 0.35, duration: 0.8 }, 4.0);
+      tl.to("#t3", { borderColor: "#ff8a7a", backgroundColor: "#3a2036", scale: 1.05, duration: 0.8, ease: "power2.out" }, 4.0);
+      tl.to("#t5", { borderColor: "#5fd3b3", backgroundColor: "#173a45", scale: 1.05, duration: 0.8, ease: "power2.out" }, 4.0);
+      show("#s1-cap", 4.3, 0.6);
+      out("#s1", 8.2);
+
+      // ---- Scene 2 (8.2 - 20.2)
+      tl.fromTo("#s2", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 8.2);
+      show("#s2-eye", 8.5, 0.6);
+      show("#s2-h", 8.8, 0.9);
+      show("#b1", 9.6, 0.8);
+      ["#f1", "#f2", "#f3", "#f4", "#f5"].forEach((f, i) => show(f, 10.2 + i * 0.15, 0.5, { opacity: 0, y: -30 }));
+      show("#ar1", 10.9, 0.5, { opacity: 0, x: -30 });
+      show("#b2", 11.2, 0.8);
+      show("#ar2", 12.0, 0.5, { opacity: 0, x: -30 });
+      show("#b3", 12.3, 0.8);
+      tl.to("#s2a", { opacity: 0, duration: 0.6, ease: "power1.in" }, 14.1);
+      tl.fromTo("#s2b", { opacity: 0 }, { opacity: 1, duration: 0.6 }, 14.5);
+      show("#s2b-h", 14.6, 0.9);
+      tl.fromTo("#track", { clipPath: "inset(0 100% 0 0 round 35px)" }, { clipPath: "inset(0 0% 0 0 round 35px)", duration: 1.0, ease: "power2.out" }, 15.4);
+      tl.fromTo("#marker", { opacity: 0, x: 0 }, { opacity: 1, duration: 0.3 }, 15.8);
+      tl.to("#marker", { x: 1494, duration: 3.0, ease: "none" }, 16.1);
+      show("#s2b-cap", 16.4, 0.8);
+      tl.fromTo("#sale", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 18.7);
+      out("#s2", 19.6);
+
+      // ---- Scene 3 (19.8 - 28.2)
+      scene("#s3", 19.8, 28.2);
+      tl.fromTo("#s3-logo", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.9, ease: "back.out(1.6)", transformOrigin: "50% 50%" }, 20.3);
+      show("#tg1", 21.8, 0.8);
+      show("#tg2", 22.9, 0.8);
+      show("#tg3", 24.0, 0.9);
+      show("#s3-sub", 24.9, 0.8);
+
+      // ---- Scene 4 (27.8 - 43.2)
+      scene("#s4", 27.8, 43.2);
+      show("#s4-eye", 28.2, 0.6);
+      show("#s4-h", 28.5, 0.8);
+      show("#st1", 29.2, 0.8);
+      ["#c1", "#c2", "#c3", "#c4", "#c5"].forEach((c, i) => show(c, 30.0 + i * 0.25, 0.5, { opacity: 0, y: -60 }));
+      show("#nt", 31.6, 0.7);
+      show("#st2", 32.6, 0.8);
+      ["#r1", "#r2", "#r3", "#r4", "#r5"].forEach((r, i) => show(r, 33.4 + i * 0.2, 0.5, { opacity: 0, x: -30 }));
+      tl.to("#r3", { backgroundColor: "#4a2540", borderColor: "#ff8a7a", duration: 0.6 }, 35.2);
+      tl.to("#r5", { backgroundColor: "#16463f", borderColor: "#5fd3b3", duration: 0.6 }, 35.2);
+      show("#fm", 35.5, 0.7);
+      show("#st3", 36.6, 0.8);
+      ["#k1", "#k2", "#k3"].forEach((k, i) => show(k, 37.4 + i * 0.5, 0.6));
+      show("#fm3", 39.2, 0.7);
+      show("#s4-cap", 40.0, 0.8);
+
+      // ---- Scene 5 (42.8 - 55.2)
+      scene("#s5", 42.8, 55.2);
+      show("#card", 43.2, 0.9, { opacity: 0, y: 50, scale: 0.97 });
+      show("#bd1", 43.8, 0.5);
+      show("#bd2", 44.0, 0.5);
+      show("#pill1", 44.1, 0.5);
+      show("#ttl", 44.4, 0.7);
+      ["#sa", "#sb", "#sc"].forEach((s, i) => show(s, 45.0 + i * 0.25, 0.6));
+      show("#reason", 45.9, 0.7);
+      ["#approve", "#edit", "#reject"].forEach((b, i) => show(b, 46.5 + i * 0.15, 0.5));
+      show("#log", 44.0, 0.9, { opacity: 0, x: 40 });
+      show("#e1", 45.2, 0.6);
+      show("#e2", 45.8, 0.6);
+      tl.set("#cursor", { x: 900, y: 860 }, 0);
+      tl.to("#cursor", { opacity: 1, duration: 0.4 }, 47.2);
+      tl.to("#cursor", { x: 270, y: 735, duration: 1.4, ease: "power2.inOut" }, 47.4);
+      tl.to("#approve", { scale: 0.94, backgroundColor: "#086049", duration: 0.15, ease: "power1.in", transformOrigin: "50% 50%" }, 48.9);
+      tl.to("#approve", { scale: 1, duration: 0.25, ease: "power2.out" }, 49.05);
+      tl.to("#pill1", { opacity: 0, duration: 0.3 }, 49.2);
+      tl.to("#pill2", { opacity: 1, duration: 0.4 }, 49.3);
+      tl.to("#card", { boxShadow: "0 40px 90px -30px rgba(0,0,0,0.6), 0 0 0 6px #5fd3b3", duration: 0.5 }, 49.3);
+      tl.to("#cursor", { opacity: 0, duration: 0.4 }, 49.6);
+      show("#e3", 49.6, 0.7);
+      show("#s5-cap", 50.6, 0.8);
+
+      // ---- Scene 6 (54.8 - 62.2)
+      scene("#s6", 54.8, 62.2);
+      show("#s6-eye", 55.2, 0.6);
+      show("#tr1", 55.6, 0.8);
+      show("#tr2", 56.6, 0.8);
+      show("#tr3", 57.6, 0.8);
+      show("#s6-cap", 58.5, 0.8);
+
+      // ---- Scene 7 (61.8 - 69)
+      scene("#s7", 61.8, 70);
+      tl.fromTo("#s7-logo", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.9, ease: "back.out(1.5)", transformOrigin: "50% 50%" }, 62.3);
+      show("#s7-tag", 63.3, 0.8);
+      tl.fromTo("#cta", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, 64.5);
+      show("#s7-fine", 65.3, 0.8);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

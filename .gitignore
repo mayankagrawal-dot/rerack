@@ -51,3 +51,6 @@ next-env.d.ts
 /set-vercel-key.ps1
 /check-vercel-key.ps1
 /SET-VERCEL-KEY.bat
+
+# but keep the template of required variables (contains no secrets)
+!.env.example

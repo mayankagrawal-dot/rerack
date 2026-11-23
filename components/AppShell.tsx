@@ -137,6 +137,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
       : "last 4 weeks";
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // The public landing page has its own header and footer, so it skips the app's sidebar and top bar.
+  if (pathname === "/landing") return <>{children}</>;
+
   return (
     <div className="min-h-screen md:grid md:grid-cols-[256px_1fr]">
       {/* Desktop navigation rail */}
